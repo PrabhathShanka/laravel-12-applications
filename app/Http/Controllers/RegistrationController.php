@@ -6,6 +6,8 @@ namespace App\Http\Controllers;
 use App\Models\Event;
 use App\Models\Registration;
 use Illuminate\Http\Request;
+use App\Mail\RegistrationConfirmationMail;
+use Illuminate\Support\Facades\Mail;
 
 class RegistrationController extends Controller
 {
@@ -18,6 +20,8 @@ class RegistrationController extends Controller
         ]);
 
         $registration = $event->registrations()->create($validated);
+        Mail::to($registration->email)
+            ->queue(new RegistrationConfirmationMail($registration));
 
         return response()->json([
             'success' => true,
