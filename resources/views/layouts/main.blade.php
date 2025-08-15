@@ -10,8 +10,8 @@
 
 <body class="flex flex-col h-full min-h-screen">
     <!-- Fixed Header -->
-    <header class="fixed top-0 left-0 right-0 bg-white shadow-md z-50">
-        @include('layouts.navigation')
+    <header class="fixed top-0 left-0 right-0 z-50 bg-white shadow-md">
+        @include('layouts.navigationTemplate')
     </header>
 
     <!-- Scrollable Content -->
@@ -20,9 +20,11 @@
     </main>
 
     <!-- Fixed Footer -->
-    <footer class="fixed bottom-0 left-0 right-0 bg-gray-800 text-white py-4 z-50">
+    <footer class="fixed bottom-0 left-0 right-0 z-50 py-4 text-white bg-gray-800">
         @include('layouts.footer')
     </footer>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     @stack('scripts')
 </body>
 
