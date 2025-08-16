@@ -2,28 +2,42 @@
 
 namespace App\Http\Controllers;
 
+use App\Handlers\EventHandlers;
+use App\Http\Requests\StoreEventRequest;
+use App\Http\Requests\UpdateEventRequest;
 use App\Models\Event;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Mail;
-use App\Mail\EventRegistrationConfirmation;
+use Exception;
+use Illuminate\Support\Facades\Log;
 
 class EventController extends Controller
 {
+    public function __construct(private EventHandlers $eventHandler)
+    {
+        //
+    }
 
     public function home()
     {
-        $events = Event::where('date', '>=', today())
-            ->orderBy('date')
-            ->take(3)
-            ->get();
-
-        return view('home', compact('events'));
+        try {
+            $events = $this->eventHandler->getUpcomingEvents();
+            return view('home', compact('events'));
+        } catch (Exception $e) {
+            Log::error('Error fetching upcoming events: ' . $e->getMessage());
+            return back()->with('error', 'Failed to load upcoming events. Please try again later.');
+        }
     }
+
     public function index()
     {
-        $events = Event::orderBy('date')->get();
-        return view('admin.events.index', compact('events'));
+        try {
+            $events = $this->eventHandler->getEvent();
+            return view('admin.events.index', compact('events'));
+        } catch (Exception $e) {
+            Log::error('Error fetching events: ' . $e->getMessage());
+            return back()->with('error', 'Failed to load events. Please try again later.');
+        }
     }
 
     public function create()
@@ -31,96 +45,63 @@ class EventController extends Controller
         return view('admin.events.create');
     }
 
-    public function store(Request $request)
+    public function store(StoreEventRequest $request)
     {
-        $validated = $request->validate([
-            'title' => 'required|max:255',
-            'description' => 'required',
-            'venue' => 'required',
-            'date' => 'required|date',
-            'time' => 'required',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
-        ]);
+        try {
+            $validated = $request->validated();
 
-        if ($request->hasFile('image')) {
-            $validated['image'] = $request->file('image')->store('events');
+            $this->eventHandler->storeEvent($validated, $request);
+
+            return redirect()->route('admin.events.index')
+                ->with('success', 'Event created successfully.');
+        } catch (Exception $e) {
+            Log::error('Error storing event: ' . $e->getMessage());
+            return back()->withInput()->with('error', 'Failed to create event. Please try again.');
         }
-
-        Event::create($validated);
-
-        return redirect()->route('admin.events.index')
-            ->with('success', 'Event created successfully.');
     }
-
     public function show(Event $event)
     {
-        return view('admin.events.show', compact('event'));
+        try {
+            return view('admin.events.show', compact('event'));
+        } catch (Exception $e) {
+            Log::error('Error showing event: ' . $e->getMessage());
+            return back()->with('error', 'Failed to load event details. Please try again later.');
+        }
     }
 
     public function edit(Event $event)
     {
-        return view('admin.events.edit', compact('event'));
+        try {
+            return view('admin.events.edit', compact('event'));
+        } catch (Exception $e) {
+            Log::error('Error editing event: ' . $e->getMessage());
+            return back()->with('error', 'Failed to load event for editing. Please try again later.');
+        }
     }
 
-    public function update(Request $request, Event $event)
+    public function update(UpdateEventRequest $request, Event $event)
     {
-        $validated = $request->validate([
-            'title' => 'required|max:255',
-            'description' => 'required',
-            'venue' => 'required',
-            'date' => 'required|date',
-            'time' => 'required',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
-        ]);
+        try {
+            $validated = $request->validated();
+            $this->eventHandler->updateEvent($event, $request, $validated);
 
-        if ($request->hasFile('image')) {
-            // Delete old image if exists
-            if ($event->image) {
-                Storage::Delete($event->image);
-            }
-            $validated['image'] = $request->file('image')->store('events');
+            return redirect()->route('admin.events.index')
+                ->with('success', 'Event updated successfully.');
+        } catch (Exception $e) {
+            Log::error('Error updating event: ' . $e->getMessage());
+            return back()->withInput()->with('error', 'Failed to update event. Please try again.');
         }
-
-        $event->update($validated);
-
-        return redirect()->route('admin.events.index')
-            ->with('success', 'Event updated successfully.');
     }
 
     public function destroy(Event $event)
     {
-        if ($event->image) {
-            Storage::Delete($event->image);
+        try {
+            $this->eventHandler->deleteEvent($event);
+            return redirect()->route('admin.events.index')
+                ->with('success', 'Event deleted successfully.');
+        } catch (Exception $e) {
+            Log::error('Error deleting event: ' . $e->getMessage());
+            return back()->with('error', 'Failed to delete event. Please try again.');
         }
-
-        $event->delete();
-
-        return redirect()->route('admin.events.index')
-            ->with('success', 'Event deleted successfully.');
     }
-
-    // public function register(Request $request, Event $event)
-    // {
-    //     $request->validate([
-    //         'email' => 'required|email',
-    //         'name' => 'required'
-    //     ]);
-
-    //     // In a real app, you'd save this to a registrations table
-    //     // For now, we'll just send the email
-
-    //     Mail::to($request->email)->send(new EventRegistrationConfirmation($event, $request->name));
-
-    //     return response()->json([
-    //         'success' => true,
-    //         'message' => 'Registration successful! Check your email for confirmation.'
-    //     ]);
-    // }
-
-    // public function dailyReport()
-    // {
-    //     $events = Event::whereDate('date', today())->get();
-
-    //     return view('admin.events.report', compact('events'));
-    // }
 }
