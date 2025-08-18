@@ -3,8 +3,8 @@
 
     <!-- Logo -->
     <div class="flex items-center h-16 px-4 border-b border-indigo-600">
-        <i class="mr-2 text-xl fas fa-shield-alt"></i>
-        <span class="text-lg font-semibold">AdminPro</span>
+        <i class="mr-2 text-xl fas fa-tasks"></i>
+        <span class="text-lg font-semibold">Task Manager</span>
     </div>
 
     <!-- Profile -->
@@ -14,32 +14,42 @@
             alt="{{ Auth::user()->name }}">
         <div class="ml-3">
             <p class="text-sm font-medium">{{ Auth::user()->name }}</p>
-            <p class="text-xs text-indigo-300">Administrator</p>
+            <p class="text-xs text-indigo-300">{{ Auth::user()->is_admin ? 'Administrator' : 'User' }}</p>
         </div>
     </div>
 
     <!-- Navigation Links -->
     <nav class="flex-1 mt-4 space-y-1">
-        {{--  <a href="{{ route('admin.dashboard') }}"
-           class="flex items-center px-4 py-3 text-sm rounded-lg transition-all duration-200 {{ request()->routeIs('admin.dashboard') ? 'bg-indigo-600 text-white' : 'text-indigo-200 hover:bg-indigo-600 hover:text-white' }}">
+        <a href="{{ route('dashboard') }}"
+           class="flex items-center px-4 py-3 text-sm rounded-lg transition-all duration-200 {{ request()->routeIs('dashboard') ? 'bg-indigo-600 text-white' : 'text-indigo-200 hover:bg-indigo-600 hover:text-white' }}">
             <i class="mr-3 fas fa-tachometer-alt"></i> Dashboard
-        </a>  --}}
-{{--
-        <a href="{{ route('admin.users') }}"
-           class="flex items-center px-4 py-3 text-sm rounded-lg transition-all duration-200 {{ request()->routeIs('admin.users') ? 'bg-indigo-600 text-white' : 'text-indigo-200 hover:bg-indigo-600 hover:text-white' }}">
-            <i class="mr-3 fas fa-users"></i> Users
+        </a>
+
+        <a href="{{ route('tasks.index') }}"
+           class="flex items-center px-4 py-3 text-sm rounded-lg transition-all duration-200 {{ request()->routeIs('tasks.*') ? 'bg-indigo-600 text-white' : 'text-indigo-200 hover:bg-indigo-600 hover:text-white' }}">
+            <i class="mr-3 fas fa-list-check"></i> My Tasks
+        </a>
+        {{--  <a href="#"
+           class="flex items-center px-4 py-3 text-sm rounded-lg transition-all duration-200 {{ request()->routeIs('tasks.*') ? 'bg-indigo-600 text-white' : 'text-indigo-200 hover:bg-indigo-600 hover:text-white' }}">
+            <i class="mr-3 fas fa-list-check"></i> My Tasks
         </a>  --}}
 
-        <!-- Events Button -->
-        <a href="{{ route('admin.events.index') }}"
-           class="flex items-center px-4 py-3 text-sm rounded-lg transition-all duration-200 {{ request()->routeIs('admin.events.*') ? 'bg-indigo-600 text-white' : 'text-indigo-200 hover:bg-indigo-600 hover:text-white' }}">
-            <i class="mr-3 fas fa-calendar-alt"></i> Events
+        @if(Auth::user()->is_admin)
+        <a href="{{ route('admin.users.index') }}"
+           class="flex items-center px-4 py-3 text-sm rounded-lg transition-all duration-200 {{ request()->routeIs('admin.users.*') ? 'bg-indigo-600 text-white' : 'text-indigo-200 hover:bg-indigo-600 hover:text-white' }}">
+            <i class="mr-3 fas fa-users"></i> User Management
         </a>
-{{--
-        <a href="{{ route('admin.settings') }}"
-           class="flex items-center px-4 py-3 text-sm rounded-lg transition-all duration-200 {{ request()->routeIs('admin.settings') ? 'bg-indigo-600 text-white' : 'text-indigo-200 hover:bg-indigo-600 hover:text-white' }}">
-            <i class="mr-3 fas fa-cogs"></i> Settings
-        </a>  --}}
+
+        <a href="{{ route('admin.tasks.index') }}"
+           class="flex items-center px-4 py-3 text-sm rounded-lg transition-all duration-200 {{ request()->routeIs('admin.tasks.*') ? 'bg-indigo-600 text-white' : 'text-indigo-200 hover:bg-indigo-600 hover:text-white' }}">
+            <i class="mr-3 fas fa-clipboard-list"></i> All Tasks
+        </a>
+
+        <a href="{{ route('admin.reports.index') }}"
+           class="flex items-center px-4 py-3 text-sm rounded-lg transition-all duration-200 {{ request()->routeIs('admin.reports.*') ? 'bg-indigo-600 text-white' : 'text-indigo-200 hover:bg-indigo-600 hover:text-white' }}">
+            <i class="mr-3 fas fa-chart-bar"></i> Reports
+        </a>
+        @endif
     </nav>
 
     <!-- Logout -->
