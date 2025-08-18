@@ -9,13 +9,9 @@ use Illuminate\Support\Facades\Route;
 
 
 
-Route::get('/', [EventController::class, 'home'])->name('home');
-
-Route::post('/events/{event}/register', [RegistrationController::class, 'store'])
-    ->name('events.register');
-
-Route::get('/events/{event}/registrations', [RegistrationController::class, 'index'])
-    ->name('events.registrations');
+Route::get('/', function () {
+    return view('home');
+})->name('home');
 
 
 Route::prefix('admin')->middleware(['auth', 'verified'])->group(function () {

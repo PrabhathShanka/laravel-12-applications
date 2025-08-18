@@ -1,8 +1,5 @@
 @extends('layouts.app', [
     'title' => 'My Tasks',
-    'header' => 'My Tasks',
-    'subheader' => 'Manage your assigned tasks',
-    'breadcrumbs' => 'Tasks',
 ])
 
 @section('content')

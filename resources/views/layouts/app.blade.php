@@ -74,33 +74,6 @@
                 </div>
 
                 <div class="flex items-center gap-4">
-                    <!-- Notifications -->
-                    <div class="relative" x-data="{ open: false }">
-                        <button @click="open = !open" class="relative text-gray-500 hover:text-indigo-600">
-                            <i class="text-lg fas fa-bell"></i>
-                            <span class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
-                        </button>
-
-                        <!-- Notifications Dropdown -->
-                        <div x-show="open" @click.away="open = false" x-transition
-                            class="absolute right-0 z-50 w-64 mt-2 bg-white border rounded-lg shadow-lg">
-                            <div class="p-3 border-b">
-                                <h3 class="text-sm font-medium">Notifications</h3>
-                            </div>
-                            <div class="p-2">
-                                <a href="#" class="flex items-start p-2 text-sm rounded hover:bg-gray-50">
-                                    <div class="flex-shrink-0 mt-1 mr-3 text-indigo-600">
-                                        <i class="fas fa-tasks"></i>
-                                    </div>
-                                    <div>
-                                        <p class="font-medium">New task assigned</p>
-                                        <p class="text-xs text-gray-500">2 minutes ago</p>
-                                    </div>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-
                     <!-- Profile Dropdown -->
                     <div class="relative" x-data="{ open: false }">
                         <button @click="open = !open" class="flex items-center gap-2 focus:outline-none">

@@ -8,13 +8,13 @@ class StoreTaskRequest extends FormRequest
 {
     public function authorize()
     {
-        return true; // Allow all authenticated users
+        return true;
     }
 
     public function rules()
     {
         return [
-            'title' => 'required|string|max:255',
+            'title' => 'required|string|max:100',
             'description' => 'nullable|string',
             'due_date' => 'required|date',
             'status' => 'required|in:pending,in_progress,completed',
