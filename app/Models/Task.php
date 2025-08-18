@@ -18,7 +18,7 @@ class Task extends Model
         'file_path'
     ];
 
-     protected $casts = [
+    protected $casts = [
         'due_date' => 'date',
     ];
 
@@ -28,5 +28,10 @@ class Task extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function users()
+    {
+        return $this->belongsToMany(User::class)->withTimestamps();
     }
 }

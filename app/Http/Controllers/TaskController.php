@@ -4,9 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreTaskRequest;
 use App\Models\Task;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use App\Mail\TaskAssignedMail;
+use Illuminate\Support\Facades\Mail;
 
 class TaskController extends Controller
 {
@@ -23,8 +26,14 @@ class TaskController extends Controller
 
         $tasks = $query->paginate(10);
 
-        return view('admin.tasks.index', compact('tasks'));
+        // Get all users for the "Assign Users" multi-select in the modal
+        $users = User::all();
+
+        return view('admin.tasks.index', compact('tasks', 'users'));
     }
+
+
+
 
     public function store(StoreTaskRequest $request)
     {
@@ -43,16 +52,28 @@ class TaskController extends Controller
             'file_path' => $filePath,
         ]);
 
+        // Attach assigned users if any
+        if ($request->filled('assigned_users')) {
+            $task->users()->sync($request->assigned_users);
+
+            // Send email to each assigned user
+            foreach ($task->users as $user) {
+                Mail::to($user->email)->queue(new TaskAssignedMail($task));
+            }
+        }
+
         if ($request->ajax()) {
             return response()->json([
                 'success' => true,
                 'message' => 'Task created successfully!',
-                'task' => $task
+                'task' => $task->load('users')
             ]);
         }
 
         return redirect()->route('admin.tasks.index')->with('success', 'Task created successfully!');
     }
+
+
 
     public function show(Task $task)
     {

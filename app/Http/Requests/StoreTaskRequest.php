@@ -19,7 +19,8 @@ class StoreTaskRequest extends FormRequest
             'due_date' => 'required|date',
             'status' => 'required|in:pending,in_progress,completed',
             'file' => 'nullable|file|mimes:pdf,png,jpg,jpeg,webp,txt,zip|max:5120',
+            'assigned_users' => 'nullable|array',
+            'assigned_users.*' => 'exists:users,id'
         ];
     }
 }
-

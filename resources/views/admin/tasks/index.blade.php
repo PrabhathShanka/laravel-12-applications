@@ -64,18 +64,13 @@
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th scope="col"
-                            class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Title
+                        <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Title
                         </th>
-                        <th scope="col"
-                            class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Status
+                        <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Status
                         </th>
-                        <th scope="col"
-                            class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Due Date
+                        <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Due Date
                         </th>
-                        <th scope="col"
-                            class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase ">
-                            Actions
+                        <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">Actions
                         </th>
                     </tr>
                 </thead>
@@ -109,32 +104,27 @@
                                     {{ ucfirst(str_replace('_', ' ', $task->status)) }}
                                 </span>
                             </td>
-                            <td class="px-6 py-4 text-sm text-gray-500 whitespace-nowrap ">
+                            <td class="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">
                                 {{ $task->due_date->format('M d, Y') }}
                                 @if ($task->due_date->isPast() && $task->status != 'completed')
                                     <span class="text-xs text-red-500">(Overdue)</span>
                                 @endif
                             </td>
-                            {{--  <td class="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">
-                                @if ($task->file_path)
-                                    <a href="{{ route('tasks.download', $task) }}"
-                                        class="text-indigo-600 hover:text-indigo-900">
-                                        <i class="mr-1 fas fa-paperclip"></i> {{ basename($task->file_path) }}
-                                    </a>
-                                @else
-                                    <span class="text-gray-400">None</span>
-                                @endif
-                            </td>  --}}
-                            <td class="px-6 py-4 text-sm font-medium text-right whitespace-nowrap ">
-                                <div class="flex space-x-2">
-                                    <a href="{{ route('tasks.show', $task) }}"
-                                        class="text-indigo-600 hover:text-indigo-900" title="View">
+                            <td class="px-6 py-4 text-sm font-medium text-right whitespace-nowrap">
+                                <div class="flex justify-center space-x-2">
+                                    <!-- View -->
+                                    <button onclick="viewTask({{ $task->id }})"
+                                        class="text-blue-600 hover:text-blue-900" title="View">
                                         <i class="fas fa-eye"></i>
-                                    </a>
-                                    <a href="{{ route('tasks.edit', $task) }}"
+                                    </button>
+
+                                    <!-- Edit -->
+                                    <button onclick="editTask({{ $task->id }})"
                                         class="text-yellow-600 hover:text-yellow-900" title="Edit">
                                         <i class="fas fa-edit"></i>
-                                    </a>
+                                    </button>
+
+                                    <!-- Delete -->
                                     <form action="{{ route('tasks.destroy', $task) }}" method="POST" class="inline">
                                         @csrf
                                         @method('DELETE')
@@ -149,8 +139,7 @@
                     @empty
                         <tr>
                             <td colspan="5" class="px-6 py-4 text-sm text-center text-gray-500">
-                                No tasks found. <a href="{{ route('tasks.create') }}"
-                                    class="text-indigo-600 hover:text-indigo-900">Create one now</a>.
+                                No tasks found.
                             </td>
                         </tr>
                     @endforelse
@@ -164,20 +153,16 @@
         </div>
     </div>
 
-    <!-- Modal -->
+    <!-- Task Modal (Create/Edit/View) -->
     <div id="taskModal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog"
         aria-modal="true">
         <div class="flex items-end justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-            <!-- Background overlay -->
             <div class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" aria-hidden="true"></div>
 
-            <!-- Modal panel -->
             <div
                 class="inline-block w-full max-w-md p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white rounded-lg shadow-xl sm:max-w-lg">
                 <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-medium leading-6 text-gray-900" id="modal-title">
-                        Create New Task
-                    </h3>
+                    <h3 class="text-lg font-medium leading-6 text-gray-900" id="modal-title">Task</h3>
                     <button type="button" onclick="closeModal()" class="text-gray-400 hover:text-gray-500">
                         <i class="fas fa-times"></i>
                     </button>
@@ -185,6 +170,9 @@
 
                 <form id="taskForm" action="{{ route('tasks.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
+                    <input type="hidden" name="_method" id="taskMethod" value="POST">
+                    <input type="hidden" name="task_id" id="task_id">
+
                     <div class="space-y-4">
                         <!-- Title -->
                         <div>
@@ -229,6 +217,19 @@
                                 class="block w-full mt-1 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                             <div id="file-error" class="mt-1 text-sm text-red-600"></div>
                         </div>
+
+                        <!-- Assign Users -->
+                        <div>
+                            <label for="assigned_users" class="block text-sm font-medium text-gray-700">Assign
+                                Users</label>
+                            <select name="assigned_users[]" id="assigned_users" multiple
+                                class="block w-full mt-1 border-gray-300 rounded-md shadow-sm select2 sm:text-sm">
+                                @foreach ($users as $user)
+                                    <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                @endforeach
+                            </select>
+                            <div id="assigned_users-error" class="mt-1 text-sm text-red-600"></div>
+                        </div>
                     </div>
 
                     <div class="flex justify-end mt-6 space-x-3">
@@ -247,25 +248,34 @@
     </div>
 
     <script>
+        // Open create modal
         function openModal() {
-            // Clear any previous errors when opening modal
-            clearErrors();
+            resetForm();
             document.getElementById('taskModal').classList.remove('hidden');
             document.body.classList.add('overflow-hidden');
+            $('#assigned_users').select2({
+                placeholder: "Select users to assign",
+                width: '100%',
+                dropdownParent: $('#taskModal')
+            });
         }
 
         function closeModal() {
             document.getElementById('taskModal').classList.add('hidden');
             document.body.classList.remove('overflow-hidden');
+            $('#assigned_users').select2('destroy');
+        }
+
+        function resetForm() {
+            document.getElementById('taskForm').reset();
+            document.getElementById('taskMethod').value = 'POST';
+            document.getElementById('taskForm').action = "{{ route('tasks.store') }}";
+            document.getElementById('task_id').value = '';
+            clearErrors();
         }
 
         function clearErrors() {
-            // Clear all error messages
-            document.querySelectorAll('[id$="-error"]').forEach(el => {
-                el.textContent = '';
-            });
-
-            // Remove error classes from inputs
+            document.querySelectorAll('[id$="-error"]').forEach(el => el.textContent = '');
             document.querySelectorAll('.border-red-500').forEach(el => {
                 el.classList.remove('border-red-500');
                 el.classList.add('border-gray-300');
@@ -274,12 +284,9 @@
 
         function displayErrors(errors) {
             clearErrors();
-
-            // Loop through errors and display them
             Object.keys(errors).forEach(field => {
                 const errorElement = document.getElementById(`${field}-error`);
                 const inputElement = document.getElementById(field);
-
                 if (errorElement && inputElement) {
                     errorElement.textContent = errors[field][0];
                     inputElement.classList.remove('border-gray-300');
@@ -288,53 +295,79 @@
             });
         }
 
-        // Close modal when clicking outside of it
-        document.getElementById('taskModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeModal();
-            }
-        });
+        // View Task
+        function viewTask(id) {
+            fetch(`/admin/tasks/${id}`)
+                .then(res => res.json())
+                .then(data => {
+                    openModal();
+                    document.getElementById('modal-title').textContent = 'View Task';
+                    document.getElementById('title').value = data.title;
+                    document.getElementById('description').value = data.description;
+                    document.getElementById('due_date').value = data.due_date.split('T')[0];
+                    document.getElementById('status').value = data.status;
+                    $('#assigned_users').val(data.users.map(u => u.id)).trigger('change');
+
+                    // Disable form inputs for view
+                    Array.from(document.getElementById('taskForm').elements).forEach(el => el.disabled = true);
+                });
+        }
+
+        // Edit Task
+        function editTask(id) {
+            fetch(`/admin/tasks/${id}/edit`)
+                .then(res => res.json())
+                .then(data => {
+                    openModal();
+                    document.getElementById('modal-title').textContent = 'Edit Task';
+                    document.getElementById('taskForm').action = `/tasks/${id}`;
+                    document.getElementById('taskMethod').value = 'PUT';
+                    document.getElementById('task_id').value = data.task.id;
+                    document.getElementById('title').value = data.task.title;
+                    document.getElementById('description').value = data.task.description;
+                    document.getElementById('due_date').value = data.task.due_date.split('T')[0];
+                    document.getElementById('status').value = data.task.status;
+                    $('#assigned_users').val(data.task.users.map(u => u.id)).trigger('change');
+
+                    Array.from(document.getElementById('taskForm').elements).forEach(el => el.disabled = false);
+                });
+        }
 
         // Handle form submission
         document.getElementById('taskForm').addEventListener('submit', function(e) {
             e.preventDefault();
-
             const formData = new FormData(this);
-
             fetch(this.action, {
-                    method: 'POST',
+                    method: document.getElementById('taskMethod').value,
                     body: formData,
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
                     }
                 })
-                .then(response => {
-                    if (!response.ok) {
-                        return response.json().then(err => {
-                            throw err;
-                        });
-                    }
-                    return response.json();
-                })
+                .then(res => res.json())
                 .then(data => {
                     if (data.success) {
                         closeModal();
-                        window.location.reload(); // Refresh the page to show the new task
+                        window.location.reload();
                     } else {
-                        // Handle other types of errors
-                        alert(data.message || 'Task created successfully!');
+                        alert(data.message || 'Task updated!');
                     }
                 })
                 .catch(error => {
-                    if (error.errors) {
-                        // Display validation errors
-                        displayErrors(error.errors);
-                    } else {
-                        console.error('Error:', error);
-                        alert(error.message || 'An error occurred while saving the task');
-                    }
+                    if (error.errors) displayErrors(error.errors);
+                    else alert(error.message || 'An error occurred');
                 });
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!document.getElementById('taskModal').classList.contains('hidden')) {
+                $('#assigned_users').select2({
+                    placeholder: "Select users to assign",
+                    width: '100%',
+                    dropdownParent: $('#taskModal')
+                });
+            }
         });
     </script>
 @endsection
