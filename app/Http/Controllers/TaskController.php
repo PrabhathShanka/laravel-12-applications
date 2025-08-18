@@ -26,7 +26,6 @@ class TaskController extends Controller
 
         $tasks = $query->paginate(10);
 
-        // Get all users for the "Assign Users" multi-select in the modal
         $users = User::all();
 
         return view('admin.tasks.index', compact('tasks', 'users'));
@@ -52,11 +51,9 @@ class TaskController extends Controller
             'file_path' => $filePath,
         ]);
 
-        // Attach assigned users if any
         if ($request->filled('assigned_users')) {
             $task->users()->sync($request->assigned_users);
 
-            // Send email to each assigned user
             foreach ($task->users as $user) {
                 Mail::to($user->email)->queue(new TaskAssignedMail($task));
             }
@@ -73,35 +70,43 @@ class TaskController extends Controller
         return redirect()->route('admin.tasks.index')->with('success', 'Task created successfully!');
     }
 
-
-
     public function show(Task $task)
     {
-        //$this->authorize('view', $task);
-        return view('tasks.show', compact('task'));
+        if ($task->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        $task->load('users');
+
+        return response()->json([
+            'task' => $task,
+            'users' => $task->users->pluck('id')
+        ]);
     }
 
     public function edit(Task $task)
     {
-        $this->authorize('update', $task);
-        return view('tasks.edit', compact('task'));
+        if ($task->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        $task->load('users');
+
+        return response()->json([
+            'task' => $task,
+            'users' => $task->users->pluck('id')
+        ]);
     }
 
-    public function update(Request $request, Task $task)
+    public function update(StoreTaskRequest $request, Task $task)
     {
-        $this->authorize('update', $task);
-
-        $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'due_date' => 'required|date',
-            'status' => 'required|in:pending,in_progress,completed',
-            'file' => 'nullable|file|max:2048',
-        ]);
+        if ($task->user_id !== Auth::id()) {
+            abort(403);
+        }
 
         $filePath = $task->file_path;
+
         if ($request->hasFile('file')) {
-            // Delete old file if exists
             if ($filePath) {
                 Storage::delete($filePath);
             }
@@ -116,12 +121,30 @@ class TaskController extends Controller
             'file_path' => $filePath,
         ]);
 
-        return redirect()->route('tasks.index')->with('success', 'Task updated successfully!');
+        $oldUsers = $task->users->pluck('id')->toArray();
+        $newUsers = $request->assigned_users ?? [];
+
+        $task->users()->sync($newUsers);
+
+        $newlyAssigned = array_diff($newUsers, $oldUsers);
+        if (!empty($newlyAssigned)) {
+            foreach (User::whereIn('id', $newlyAssigned)->get() as $user) {
+                Mail::to($user->email)->queue(new TaskAssignedMail($task));
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Task updated successfully!',
+            'task' => $task->load('users')
+        ]);
     }
 
     public function destroy(Task $task)
     {
-        $this->authorize('delete', $task);
+        if ($task->user_id !== Auth::id()) {
+            abort(403);
+        }
 
         if ($task->file_path) {
             Storage::delete($task->file_path);
@@ -129,17 +152,22 @@ class TaskController extends Controller
 
         $task->delete();
 
+        if (request()->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Task deleted successfully!'
+            ]);
+        }
         return redirect()->route('tasks.index')->with('success', 'Task deleted successfully!');
     }
 
     public function download(Task $task)
     {
-        $this->authorize('view', $task);
 
-        if (!$task->file_path) {
-            abort(404);
+        if (!$task->file_path || !Storage::exists($task->file_path)) {
+            abort(404, 'File not found');
         }
 
-        return Storage::download($task->file_path, basename($task->file_path));
+        return Storage::download($task->file_path);
     }
 }

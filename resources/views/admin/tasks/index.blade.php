@@ -7,7 +7,7 @@
 
 @section('content')
     <div class="mb-6 overflow-hidden bg-white shadow sm:rounded-lg">
-        <!-- Filters -->
+        <!-- Filters Section -->
         <div class="p-4 border-b border-gray-200 sm:px-6">
             <form method="GET" action="{{ route('tasks.index') }}">
                 <div class="grid grid-cols-1 gap-4 sm:grid-cols-4">
@@ -38,7 +38,7 @@
                         </select>
                     </div>
 
-                    <!-- Actions -->
+                    <!-- Filter Actions -->
                     <div class="flex items-end space-x-2">
                         <button type="submit"
                             class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
@@ -59,92 +59,112 @@
             </div>
         </div>
 
-        <!-- Task List -->
-        <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Title
-                        </th>
-                        <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Status
-                        </th>
-                        <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Due Date
-                        </th>
-                        <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">Actions
-                        </th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                    @forelse ($tasks as $task)
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div
-                                        class="flex-shrink-0 w-2 h-2 mr-3 rounded-full
-                                {{ $task->status == 'completed'
-                                    ? 'bg-green-500'
-                                    : ($task->status == 'in_progress'
-                                        ? 'bg-yellow-500'
-                                        : 'bg-red-500') }}">
-                                    </div>
-                                    <div>
-                                        <div class="font-medium text-gray-900">{{ $task->title }}</div>
-                                        <div class="text-sm text-gray-500">{{ Str::limit($task->description, 50) }}</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span
-                                    class="inline-flex px-2 text-xs font-semibold leading-5 rounded-full
+        <!-- Task Cards Grid -->
+        <div class="grid gap-4 p-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            @forelse ($tasks as $task)
+                <div
+                    class="overflow-hidden transition-all duration-200 bg-gray-200 border border-gray-200 rounded-lg shadow-sm hover:shadow-md">
+                    <div class="p-4">
+                        <!-- Task Header -->
+                        <div class="flex items-start justify-between">
+                            <div class="flex items-center">
+                                <div
+                                    class="flex-shrink-0 w-2 h-2 mr-2 rounded-full
                             {{ $task->status == 'completed'
-                                ? 'text-green-800 bg-green-100'
+                                ? 'bg-green-500'
                                 : ($task->status == 'in_progress'
-                                    ? 'text-yellow-800 bg-yellow-100'
-                                    : 'text-red-800 bg-red-100') }}">
-                                    {{ ucfirst(str_replace('_', ' ', $task->status)) }}
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">
-                                {{ $task->due_date->format('M d, Y') }}
-                                @if ($task->due_date->isPast() && $task->status != 'completed')
-                                    <span class="text-xs text-red-500">(Overdue)</span>
-                                @endif
-                            </td>
-                            <td class="px-6 py-4 text-sm font-medium text-right whitespace-nowrap">
-                                <div class="flex justify-center space-x-2">
-                                    <!-- View -->
-                                    <button onclick="viewTask({{ $task->id }})"
-                                        class="text-blue-600 hover:text-blue-900" title="View">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
-
-                                    <!-- Edit -->
-                                    <button onclick="editTask({{ $task->id }})"
-                                        class="text-yellow-600 hover:text-yellow-900" title="Edit">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-
-                                    <!-- Delete -->
-                                    <form action="{{ route('tasks.destroy', $task) }}" method="POST" class="inline">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="text-red-600 hover:text-red-900" title="Delete"
-                                            onclick="return confirm('Are you sure you want to delete this task?')">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </form>
+                                    ? 'bg-yellow-500'
+                                    : 'bg-red-500') }}">
                                 </div>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="5" class="px-6 py-4 text-sm text-center text-gray-500">
-                                No tasks found.
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
+                                <h3 class="text-lg font-medium text-gray-900">{{ $task->title }}</h3>
+                            </div>
+                            <span
+                                class="inline-flex px-2 text-xs font-semibold leading-5 rounded-full
+                        {{ $task->status == 'completed'
+                            ? 'text-green-800 bg-green-100'
+                            : ($task->status == 'in_progress'
+                                ? 'text-yellow-800 bg-yellow-100'
+                                : 'text-red-800 bg-red-100') }}">
+                                {{ ucfirst(str_replace('_', ' ', $task->status)) }}
+                            </span>
+                        </div>
+
+                        <!-- Assigned Users -->
+                        @if ($task->users->isNotEmpty())
+                            <div class="flex gap-5 mt-2">
+                                @foreach ($task->users as $user)
+                                    <div class="flex items-center mb-1 text-sm text-gray-600">
+                                        <i class="mr-2 fas fa-user"></i>
+                                        <span>{{ $user->name }}</span>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
+
+                        <!-- Description with Read More -->
+                        <div class="mt-2">
+                            <div class="text-sm text-gray-600 whitespace-pre-line line-clamp-3"
+                                id="desc-{{ $task->id }}">
+                                {{ $task->description }}
+                            </div>
+                            @if (strlen($task->description) > 150 || str_contains($task->description, "\n"))
+                                <button onclick="toggleDescription('{{ $task->id }}')"
+                                    class="mt-1 text-sm font-medium text-indigo-600 hover:text-indigo-500">
+                                    Read more
+                                </button>
+                            @endif
+                        </div>
+
+                        <!-- Due Date -->
+                        <div class="flex justify-between">
+                            <div class="flex items-center mt-3 text-sm text-gray-500">
+                                <i class="mr-2 far fa-calendar-alt"></i>
+                                <span>
+                                    {{ $task->due_date->format('M d, Y') }}
+                                    @if ($task->due_date->isPast() && $task->status != 'completed')
+                                        <span class="ml-1 text-red-500">(Overdue)</span>
+                                    @endif
+                                </span>
+                            </div>
+                            <!-- File Attachment -->
+                            @if ($task->file_path)
+                                <div class="mt-2">
+                                    <a href="{{ route('tasks.download', $task->id) }}"
+                                        class="inline-flex items-center text-sm text-blue-600 hover:text-blue-800">
+                                        <i class="mr-1 fas fa-paperclip"></i>
+                                        <span class="truncate max-w-[180px]">{{ basename($task->file) }}</span>
+                                        <i class="ml-1 fas fa-download"></i>
+                                    </a>
+                                </div>
+                            @endif
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="flex justify-end mt-4 space-x-2">
+                            <button onclick="editTask({{ $task->id }})"
+                                class="p-2 text-yellow-600 rounded-full hover:bg-yellow-50" title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <form action="{{ route('tasks.destroy', $task) }}" method="POST" class="inline">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="p-2 text-red-600 rounded-full hover:bg-red-50" title="Delete"
+                                    onclick="return confirm('Are you sure you want to delete this task?')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            @empty
+                <div class="col-span-full">
+                    <div class="p-8 text-center bg-gray-100 rounded-lg">
+                        <i class="text-4xl text-gray-400 far fa-tasks"></i>
+                        <p class="mt-2 text-lg font-medium text-gray-600">No tasks found</p>
+                        <p class="mt-1 text-gray-500">Create your first task by clicking the "New Task" button</p>
+                    </div>
+                </div>
+            @endforelse
         </div>
 
         <!-- Pagination -->
@@ -177,7 +197,7 @@
                         <!-- Title -->
                         <div>
                             <label for="title" class="block text-sm font-medium text-gray-700">Title *</label>
-                            <input type="text" name="title" id="title"
+                            <input type="text" name="title" id="title" required
                                 class="block w-full mt-1 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                             <div id="title-error" class="mt-1 text-sm text-red-600"></div>
                         </div>
@@ -185,7 +205,7 @@
                         <!-- Description -->
                         <div>
                             <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
-                            <textarea name="description" id="description" rows="3"
+                            <textarea name="description" id="description" rows="1"
                                 class="block w-full mt-1 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"></textarea>
                             <div id="description-error" class="mt-1 text-sm text-red-600"></div>
                         </div>
@@ -193,7 +213,7 @@
                         <!-- Due Date -->
                         <div>
                             <label for="due_date" class="block text-sm font-medium text-gray-700">Due Date *</label>
-                            <input type="date" name="due_date" id="due_date"
+                            <input type="date" name="due_date" id="due_date" required
                                 class="block w-full mt-1 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                             <div id="due_date-error" class="mt-1 text-sm text-red-600"></div>
                         </div>
@@ -247,6 +267,22 @@
         </div>
     </div>
 
+
+    <script>
+        function toggleDescription(taskId) {
+            const descElement = document.getElementById(`desc-${taskId}`);
+            const button = descElement.nextElementSibling;
+
+            if (descElement.classList.contains('line-clamp-3')) {
+                descElement.classList.remove('line-clamp-3');
+                button.textContent = 'Show less';
+            } else {
+                descElement.classList.add('line-clamp-3');
+                button.textContent = 'Read more';
+            }
+        }
+    </script>
+
     <script>
         // Open create modal
         function openModal() {
@@ -272,6 +308,8 @@
             document.getElementById('taskForm').action = "{{ route('tasks.store') }}";
             document.getElementById('task_id').value = '';
             clearErrors();
+            // Enable all form elements
+            Array.from(document.getElementById('taskForm').elements).forEach(el => el.disabled = false);
         }
 
         function clearErrors() {
@@ -298,69 +336,113 @@
         // View Task
         function viewTask(id) {
             fetch(`/admin/tasks/${id}`)
-                .then(res => res.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Task not found');
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     openModal();
                     document.getElementById('modal-title').textContent = 'View Task';
-                    document.getElementById('title').value = data.title;
-                    document.getElementById('description').value = data.description;
-                    document.getElementById('due_date').value = data.due_date.split('T')[0];
-                    document.getElementById('status').value = data.status;
-                    $('#assigned_users').val(data.users.map(u => u.id)).trigger('change');
+                    document.getElementById('title').value = data.task.title;
+                    document.getElementById('description').value = data.task.description;
+                    document.getElementById('due_date').value = data.task.due_date.split('T')[0];
+                    document.getElementById('status').value = data.task.status;
+                    $('#assigned_users').val(data.users).trigger('change');
 
                     // Disable form inputs for view
                     Array.from(document.getElementById('taskForm').elements).forEach(el => el.disabled = true);
+                })
+                .catch(error => {
+                    alert(error.message);
                 });
         }
 
         // Edit Task
         function editTask(id) {
             fetch(`/admin/tasks/${id}/edit`)
-                .then(res => res.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Task not found');
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     openModal();
                     document.getElementById('modal-title').textContent = 'Edit Task';
-                    document.getElementById('taskForm').action = `/tasks/${id}`;
+                    document.getElementById('taskForm').action = `/admin/tasks/${id}/update`;
                     document.getElementById('taskMethod').value = 'PUT';
                     document.getElementById('task_id').value = data.task.id;
                     document.getElementById('title').value = data.task.title;
                     document.getElementById('description').value = data.task.description;
                     document.getElementById('due_date').value = data.task.due_date.split('T')[0];
                     document.getElementById('status').value = data.task.status;
-                    $('#assigned_users').val(data.task.users.map(u => u.id)).trigger('change');
+                    $('#assigned_users').val(data.users).trigger('change');
 
+                    // Enable all form elements for editing
                     Array.from(document.getElementById('taskForm').elements).forEach(el => el.disabled = false);
+                })
+                .catch(error => {
+                    alert(error.message);
                 });
         }
 
         // Handle form submission
         document.getElementById('taskForm').addEventListener('submit', function(e) {
             e.preventDefault();
+
+            // Get the form data
             const formData = new FormData(this);
-            fetch(this.action, {
-                    method: document.getElementById('taskMethod').value,
+            const method = document.getElementById('taskMethod').value;
+            const url = this.action;
+
+            // Add selected users to form data
+            const selectedUsers = $('#assigned_users').val() || [];
+            formData.delete('assigned_users[]'); // Remove existing if any
+            selectedUsers.forEach(userId => {
+                formData.append('assigned_users[]', userId);
+            });
+
+            // Add _method for PUT/PATCH requests
+            if (method !== 'POST') {
+                formData.append('_method', method);
+            }
+
+            fetch(url, {
+                    method: 'POST', // Always POST, we'll use _method for PUT/PATCH
                     body: formData,
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
                     }
                 })
-                .then(res => res.json())
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(err => Promise.reject(err));
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     if (data.success) {
                         closeModal();
                         window.location.reload();
                     } else {
-                        alert(data.message || 'Task updated!');
+                        alert(data.message || 'Operation successful!');
                     }
                 })
                 .catch(error => {
-                    if (error.errors) displayErrors(error.errors);
-                    else alert(error.message || 'An error occurred');
+                    if (error.errors) {
+                        displayErrors(error.errors);
+                    } else {
+                        alert(error.message || 'An error occurred');
+                    }
                 });
         });
 
         document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Select2 if modal is open on page load
             if (!document.getElementById('taskModal').classList.contains('hidden')) {
                 $('#assigned_users').select2({
                     placeholder: "Select users to assign",
