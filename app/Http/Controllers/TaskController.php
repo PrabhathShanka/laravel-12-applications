@@ -15,14 +15,16 @@ class TaskController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Task::where('user_id', Auth::id())
-            ->when($request->search, function ($query, $search) {
-                return $query->where('title', 'like', "%{$search}%");
-            })
-            ->when($request->status, function ($query, $status) {
-                return $query->where('status', $status);
-            })
-            ->orderBy('due_date');
+        // $query = Task::where('user_id', Auth::id())
+        //     ->when($request->search, function ($query, $search) {
+        //         return $query->where('title', 'like', "%{$search}%");
+        //     })
+        //     ->when($request->status, function ($query, $status) {
+        //         return $query->where('status', $status);
+        //     })
+        //     ->orderBy('due_date');
+
+            $query = Task::orderBy('due_date');
 
         $tasks = $query->paginate(10);
 

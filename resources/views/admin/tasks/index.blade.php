@@ -278,10 +278,7 @@
                 button.textContent = 'Read more';
             }
         }
-    </script>
-
-    <script>
-        // Open create modal
+  
         function openModal() {
             resetForm();
             document.getElementById('taskModal').classList.remove('hidden');
@@ -305,7 +302,6 @@
             document.getElementById('taskForm').action = "{{ route('tasks.store') }}";
             document.getElementById('task_id').value = '';
             clearErrors();
-            // Enable all form elements
             Array.from(document.getElementById('taskForm').elements).forEach(el => el.disabled = false);
         }
 
@@ -330,7 +326,7 @@
             });
         }
 
-        // View Task
+
         function viewTask(id) {
             fetch(`/admin/tasks/${id}`)
                 .then(response => {
@@ -348,7 +344,6 @@
                     document.getElementById('status').value = data.task.status;
                     $('#assigned_users').val(data.users).trigger('change');
 
-                    // Disable form inputs for view
                     Array.from(document.getElementById('taskForm').elements).forEach(el => el.disabled = true);
                 })
                 .catch(error => {
@@ -356,7 +351,6 @@
                 });
         }
 
-        // Edit Task
         function editTask(id) {
             fetch(`/admin/tasks/${id}/edit`)
                 .then(response => {
@@ -377,7 +371,6 @@
                     document.getElementById('status').value = data.task.status;
                     $('#assigned_users').val(data.users).trigger('change');
 
-                    // Enable all form elements for editing
                     Array.from(document.getElementById('taskForm').elements).forEach(el => el.disabled = false);
                 })
                 .catch(error => {
@@ -385,29 +378,25 @@
                 });
         }
 
-        // Handle form submission
         document.getElementById('taskForm').addEventListener('submit', function(e) {
             e.preventDefault();
 
-            // Get the form data
             const formData = new FormData(this);
             const method = document.getElementById('taskMethod').value;
             const url = this.action;
 
-            // Add selected users to form data
             const selectedUsers = $('#assigned_users').val() || [];
-            formData.delete('assigned_users[]'); // Remove existing if any
+            formData.delete('assigned_users[]');
             selectedUsers.forEach(userId => {
                 formData.append('assigned_users[]', userId);
             });
 
-            // Add _method for PUT/PATCH requests
             if (method !== 'POST') {
                 formData.append('_method', method);
             }
 
             fetch(url, {
-                    method: 'POST', // Always POST, we'll use _method for PUT/PATCH
+                    method: 'POST',
                     body: formData,
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest',
@@ -439,7 +428,6 @@
         });
 
         document.addEventListener('DOMContentLoaded', function() {
-            // Initialize Select2 if modal is open on page load
             if (!document.getElementById('taskModal').classList.contains('hidden')) {
                 $('#assigned_users').select2({
                     placeholder: "Select users to assign",

@@ -15,12 +15,11 @@ Route::get('/', function () {
 
 
 Route::prefix('admin')->middleware(['auth', 'verified'])->group(function () {
-    // Dashboard
+
     Route::get('/dashboard', function () {
         return view('admin.dashboard');
     })->name('admin.dashboard');
 
-    // Users
     Route::get('/users', function () {
         return view('admin.users');
     })->name('admin.users');
@@ -37,7 +36,6 @@ Route::prefix('admin')->middleware(['auth', 'verified'])->group(function () {
     });
 });
 
-// Laravel default auth routes
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
