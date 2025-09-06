@@ -24,7 +24,7 @@
            class="flex items-center px-4 py-3 text-sm rounded-lg transition-all duration-200 {{ request()->routeIs('admin.dashboard') ? 'bg-indigo-600 text-white' : 'text-indigo-200 hover:bg-indigo-600 hover:text-white' }}">
             <i class="mr-3 fas fa-tachometer-alt"></i> Dashboard
         </a>  --}}
-{{--
+        {{--
         <a href="{{ route('admin.users') }}"
            class="flex items-center px-4 py-3 text-sm rounded-lg transition-all duration-200 {{ request()->routeIs('admin.users') ? 'bg-indigo-600 text-white' : 'text-indigo-200 hover:bg-indigo-600 hover:text-white' }}">
             <i class="mr-3 fas fa-users"></i> Users
@@ -32,10 +32,17 @@
 
         <!-- Events Button -->
         <a href="{{ route('admin.events.index') }}"
-           class="flex items-center px-4 py-3 text-sm rounded-lg transition-all duration-200 {{ request()->routeIs('admin.events.*') ? 'bg-indigo-600 text-white' : 'text-indigo-200 hover:bg-indigo-600 hover:text-white' }}">
+            class="flex items-center px-4 py-3 text-sm rounded-lg transition-all duration-200 {{ request()->routeIs('admin.events.*') ? 'bg-indigo-600 text-white' : 'text-indigo-200 hover:bg-indigo-600 hover:text-white' }}">
             <i class="mr-3 fas fa-calendar-alt"></i> Events
         </a>
-{{--
+
+        {{--  Data table  --}}
+        <a href="{{ route('admin.dataTable.index') }}"
+            class="flex items-center px-4 py-3 text-sm rounded-lg transition-all duration-200 {{ request()->routeIs('admin.events.*') ? 'bg-indigo-600 text-white' : 'text-indigo-200 hover:bg-indigo-600 hover:text-white' }}">
+            <i class="mr-3 fas fa-calendar-alt"></i> Data Table
+        </a>
+
+        {{--
         <a href="{{ route('admin.settings') }}"
            class="flex items-center px-4 py-3 text-sm rounded-lg transition-all duration-200 {{ request()->routeIs('admin.settings') ? 'bg-indigo-600 text-white' : 'text-indigo-200 hover:bg-indigo-600 hover:text-white' }}">
             <i class="mr-3 fas fa-cogs"></i> Settings

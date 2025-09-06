@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DataTable;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RegistrationController;
@@ -37,6 +38,17 @@ Route::prefix('admin')->middleware(['auth', 'verified'])->group(function () {
         Route::get('/{event}/edit', [EventController::class, 'edit'])->name('edit');
         Route::put('/{event}', [EventController::class, 'update'])->name('update');
         Route::delete('/{event}', [EventController::class, 'destroy'])->name('destroy');
+    });
+
+    //datatable
+    Route::prefix('dataTable')->name('admin.dataTable.')->group(function () {
+        Route::get('/', [DataTable::class, 'index'])->name('index');
+        Route::post('/store', [DataTable::class, 'store'])->name('store');
+        Route::get('/fetchAll', [DataTable::class, 'fetchAll'])->name('fetchAll');
+        Route::get('/edit/{id}', [DataTable::class, 'edit'])->name('edit');
+        Route::put('/update/{id}', [DataTable::class, 'update'])->name('update');
+
+        Route::delete('/delete/{id}', [DataTable::class, 'destroy'])->name('destroy');
     });
 
     // Settings
